@@ -1,0 +1,48 @@
+#create a gfp reference
+vim gfp.fa
+ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
+GTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGC
+TGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAG
+CAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTA
+CAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGG
+ACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAAC
+GGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACAC
+CCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCGCCCTGAGCAAAGACCCCAACG
+AGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAGTAA
+
+cat gfp.fa | grep -v "^>" | tr -d "\n" | wc -c
+720
+
+echo -e 'GFP\tunknown\texon\t1\t720\t.\t+\t.\tgene_id "GFP"; transcript_id "GFP"; gene_name "GFP"; gene_biotype "protein_coding";' > GFP.gtf
+
+cp danRer11.nonalt.fa danRer11.nonalt.GFP.fa 
+
+cat gfp.fa >> danRer11.nonalt.GFP.fa
+
+#check
+grep ">" danRer11.nonalt.GFP.fa
+
+#create a gtf
+
+cp danRer11.gene.allTES_exon_110821.gtf danRer11.gene.allTES_exon_110821_GFP.gtf
+cat GFP.gtf >> danRer11.gene.allTES_exon_110821_GFP.gtf
+
+
+
+#create a reference file from dr11+GFP -> for STAR alignment
+#genome file= danRer11.nonalt.fa
+#danRer11.nonalt.GFP.fa= danRer11.nonalt.fa+ gfp.fa
+
+/programs/STAR-2.7.9a/bin/Linux_x86_64_static/STAR \
+--runMode genomeGenerate \
+--runThreadN 10 \
+--genomeDir /workdir/nc499/reference/STAR_GFP \
+--genomeFastaFiles /workdir/nc499/reference/danRer11.nonalt.GFP.fa &
+
+#create a reference file for consensus
+#consensus file = /workdir/nc499/reference/consensus/zebrep.fa
+/programs/STAR-2.7.9a/bin/Linux_x86_64_static/STAR \
+--runMode genomeGenerate \
+--runThreadN 10 \
+--genomeDir /workdir/nc499/reference/STAR_consensus \
+--genomeFastaFiles /workdir/nc499/reference/consensus/zebrep.fa &
