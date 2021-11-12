@@ -1,0 +1,11 @@
+#map to concensus from repbase to check the mapping quality
+
+/programs/STAR-2.7.9a/bin/Linux_x86_64_static/STAR \
+--runMode alignReads \
+--genomeDir /workdir/nc499/reference/STAR_consensus \
+--outFilterMismatchNmax 999 \
+--readFilesIn 11376PLpool10__HuC_1head_S8_L001_R2_001.fastq,11376PLpool10__HuC_1head_S8_L002_R2_001.fastq \
+--runThreadN 10 \
+--outSAMtype BAM Unsorted \
+--outFileNamePrefix ./consensus \
+&
