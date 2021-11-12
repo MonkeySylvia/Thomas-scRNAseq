@@ -9,3 +9,18 @@
 --outSAMtype BAM Unsorted \
 --outFileNamePrefix ./consensus \
 &
+
+#####mapped reads--> 1.7%
+#change the parameters
+
+/programs/STAR-2.7.9a/bin/Linux_x86_64_static/STAR \
+--runMode alignReads \
+--genomeDir /workdir/nc499/reference/STAR_consensus \
+--outFilterMismatchNmax 20 \
+--readFilesIn 11376PLpool10__HuC_1head_S8_L001_R2_001.fastq,11376PLpool10__HuC_1head_S8_L002_R2_001.fastq \
+--runThreadN 10 \
+--outSAMtype BAM Unsorted \
+--outFileNamePrefix ./consensus \
+--outFilterMismatchNoverLmax 0.3 \
+--outFilterScoreMinOverLread 0.5 \
+&
