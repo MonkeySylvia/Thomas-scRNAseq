@@ -1,3 +1,12 @@
+#combine TE and gene 
+cat /workdir/nc499/reference/dr11_ref/Danio_rerio.GRCz11.intactgenename.gtf /workdir/nc499/quirze/danRer11.TEtrans_uID.subClass.wredundant.annot_categ.PCg.dfrag.c2.Rt.cluster.gtf | sort -k1,1 -k2,2n > danRer11.gene.allTES_110821.gtf
+
+#this is the final file
+sed -i 's/chrMT/chrM/g' danRer11.gene.allTES_110821.gtf
+sed 's/CDS/exon/' danRer11.gene.allTES_110821.gtf > danRer11.gene.allTES_exon_110821.gtf
+
+
+
 #create a gfp reference
 vim gfp.fa
 ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
