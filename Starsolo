@@ -1,0 +1,18 @@
+/programs/STAR-2.7.9a/bin/Linux_x86_64_static/STAR \
+--genomeDir /workdir/nc499/reference/STAR_GFP/ \
+--sjdbGTFfile /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf \
+--readFilesIn 11376PLpool10__HuC_1head_S8_L002_R2_001.fastq 11376PLpool10__HuC_1head_S8_L002_R1_001.fastq \
+--runThreadN 50 \
+--quantMode GeneCounts \
+--soloUMIdedup 1MM_All \
+--soloType Droplet \
+--soloCBwhitelist 737K-august-2016.txt \
+--soloCBstart 1 \
+--soloCBlen 16 \
+--soloUMIstart 17 \
+ --soloUMIlen 9 \
+ --soloCellFilter  EmptyDrops_CR \
+ --soloMultiMappers Rescue EM \
+ --outSAMtype BAM SortedByCoordinate \
+ --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM \
+ &
