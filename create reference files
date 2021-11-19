@@ -57,7 +57,7 @@ cat GFP.gtf >> danRer11.gene.allTES_exon_110821_GFP.gtf
 --genomeFastaFiles /workdir/nc499/reference/consensus/zebrep.fa &
 
 ####
-###create a reference file with name of full-length L2 (111921)
+###create a reference file with name of full-length L2 
 #total L2 loci number
 grep 'L2-2_DRe' /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf | wc
    7784  420336 4603990
@@ -90,8 +90,6 @@ wc L2_rename.gtf
    7784
 
 #coombine non-L2 and L2_renamed
-
-grep 'L2-2_DRe_full' L2_rename.gtf | wc
 
 cat danRer11.gene.allTES_exon_110821_GFP_noL2.gtf L2_rename.gtf | sort -k1,1 -k2,2n > danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf
 
