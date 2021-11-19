@@ -55,3 +55,70 @@ cat GFP.gtf >> danRer11.gene.allTES_exon_110821_GFP.gtf
 --runThreadN 10 \
 --genomeDir /workdir/nc499/reference/STAR_consensus \
 --genomeFastaFiles /workdir/nc499/reference/consensus/zebrep.fa &
+
+####
+###create a reference file with name of full-length L2 (111921)
+#total L2 loci number
+grep 'L2-2_DRe' /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf | wc
+   7784  420336 4603990
+
+grep -v 'L2-2_DRe' /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf | wc
+4954517 247987627 2815279837
+
+wc /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf
+   4962301
+
+#create L2/non-L2 gtf
+grep -v 'L2-2_DRe' /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf > danRer11.gene.allTES_exon_110821_GFP_noL2.gtf
+grep 'L2-2_DRe' /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf > L2.gtf
+
+creat intact_L2.txt from Jons annotation
+
+grep -wf intact_L2.txt L2.gtf | sed 's/L2-2_DRe/L2-2_DRe_full/' > intact_L2_rename.gtf
+
+grep -wvf intact_L2.txt L2.gtf | wc
+   7702
+
+wc L2.gtf
+   7784
+
+grep -wvf intact_L2.txt L2.gtf > not_intact_L2.gtf
+
+cat intact_L2_rename.gtf not_intact_L2.gtf | sort -k1,1 -k2,2n > L2_rename.gtf
+
+wc L2_rename.gtf
+   7784
+
+#coombine non-L2 and L2_renamed
+
+grep 'L2-2_DRe_full' L2_rename.gtf | wc
+
+cat danRer11.gene.allTES_exon_110821_GFP_noL2.gtf L2_rename.gtf | sort -k1,1 -k2,2n > danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf
+
+#sanity check
+wc danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf
+   4962301
+
+grep 'L2-2_DRe_full' danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf | wc
+     82    4428   48871
+grep 'L2-2_DRe' danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf | wc
+   7784  420336 4604400
+grep -w 'L2-2_DRe' danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf | wc
+   7702  415908 4555529
+
+   
+mv danRer11.gene.allTES_exon_110821_GFP_renameL2.gtf /workdir/nc499/reference/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
