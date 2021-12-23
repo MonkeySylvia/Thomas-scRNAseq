@@ -1,0 +1,135 @@
+library(Seurat)
+setwd("/workdir/nc499/thomas/scRNAseqThomasWidmann/raw/All/")
+sample1.data <- Read10X(data.dir = "./sample1_263/Solo.out/Gene/filtered/")
+sample1 <- CreateSeuratObject(counts = sample1.data, project = "sample1", min.features = 100)
+sample1
+
+sample2.data <- Read10X(data.dir = "./sample2_263/Solo.out/Gene/filtered/")
+sample2 <- CreateSeuratObject(counts = sample2.data, project = "sample2", min.features = 100)
+sample2
+
+pbmc.combined <- merge(sample1, y = sample2, add.cell.ids = c("sample1", "sample2"), project = "head")
+pbmc.combined
+
+table(pbmc.combined$orig.ident)
+
+#QC#
+#####
+MT<-read.delim("MT_genes_0130.txt", header=TRUE)
+all(MT %in% rownames(pbmc.combined))
+
+pbmc.combined[["percent.mt"]] <- PercentageFeatureSet(pbmc.combined, features = MT$genenames)
+
+VlnPlot(pbmc.combined, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
+pbmc <- subset(pbmc.combined, subset = nFeature_RNA > 100 & nFeature_RNA < 5000 & nCount_RNA < 50000 & percent.mt < 45 )
+dim(pbmc)
+
+#separate batches
+pbmc.list <- SplitObject(pbmc, split.by = "orig.ident")
+
+for (i in 1:length(pbmc.list)) {
+  pbmc.list[[i]] <- NormalizeData(pbmc.list[[i]], verbose = FALSE)
+  pbmc.list[[i]] <- FindVariableFeatures(pbmc.list[[i]], selection.method = "vst", 
+                                         nfeatures = 4000, verbose = TRUE)
+}
+
+#options(future.globals.maxSize = 10000 * 1024^2)
+all.genes <- rownames(pbmc)
+pbmc.anchors <- FindIntegrationAnchors(object.list = pbmc.list, anchor.features=4000, dims = 1:40)
+pbmc.integrated <- IntegrateData(anchorset = pbmc.anchors, dims = 1:40,features.to.integrate=all.genes)
+DefaultAssay(pbmc.integrated) <- "integrated"
+pbmc.integrated <- ScaleData(pbmc.integrated, verbose = FALSE)
+
+
+pbmc.integrated <- RunPCA(pbmc.integrated, npcs = 100)
+pbmc.integrated <- JackStraw(pbmc.integrated, reduction = "pca",num.replicate =100,dims = 100) #num.replicate = 600, dims = 300
+
+pbmc.integrated <- ScoreJackStraw(pbmc.integrated, dims = 1:100)
+
+JackStrawPlot(pbmc.integrated, dims = 1:100)
+
+pbmc.integrated <- FindNeighbors(pbmc.integrated, dims = 1:98) #143, old 114
+pbmc.integrated <- FindClusters(pbmc.integrated, resolution =1.5) #default= resolution =0.5, old 5.6
+#head(Idents(pbmc), 5)
+
+pbmc.integrated <- RunUMAP(pbmc.integrated, dims = 1:98)
+
+DimPlot(pbmc.integrated, reduction = "umap", label =T,label.size=3)#group.by="orig.ident",, cols = viridis(28)
+
+# Visualization
+p1 <- DimPlot(pbmc.integrated, reduction = "umap", group.by = "orig.ident")
+p2 <- DimPlot(pbmc.integrated, reduction = "umap", label = TRUE, repel = TRUE)
+p3 <- FeaturePlot(pbmc.integrated, features ="GFP")
+p4<- FeaturePlot(pbmc.integrated, features ="L2-2-DRe",cols = c("honeydew3","red1"),pt.size=0.3,min.cutoff=0)
+p1 + p2
+p2+p4
+
+p5<- FeaturePlot(pbmc.integrated, features ="L2-2-DRe-promoter"
+                 ,cols = c("honeydew3","red1"),pt.size=0.3,min.cutoff=2)
+
+p6<-FeaturePlot(pbmc.integrated, features ="L2-2-DRe"
+            ,cols = c("honeydew3","red1"),pt.size=0.3,min.cutoff=4)
+
+p7<-FeaturePlot(pbmc.integrated, features ="ENSDARG00000035984"
+                ,cols = c("honeydew3","red1"),pt.size=0.3, min.cutoff=0)
+
+p2+p5+p6+p7
+p2+p3+p7
+
+FeaturePlot(pbmc.integrated, features = c(
+  "ENSDARG00000007406","ENSDARG00000028148","L2-2-DRe-promoter","ENSDARG00000070913"
+),cols = c("honeydew3","red1"),pt.size=0.3,min.cutoff=0)
+
+#motor neuron
+mnx1 (=hb9)	ENSDARG00000035984
+isl1a (islet1)	ENSDARG00000021055 (low)
+nkx6.1	ENSDARG00000022569
+slc17a7a (=vglut1)	ENSDARG00000016480 (low)
+neurog1 (=neurod3) ENSDARG00000056130
+nrp1a	ENSDARG00000102153 (low)
+phox2a	ENSDARG00000007406
+myod1	ENSDARG00000030110
+pax2a	ENSDARG00000028148
+huc (= elavl3)	ENSDARG00000014420
+sox2	ENSDARG00000070913
+shha	ENSDARG00000068567
+shhb ENSDARG00000038867
+sox2	ENSDARG00000070913
+pax6a (also eye marker)	ENSDARG00000103379
+pax6b (also eye marker)	ENSDARG00000045936
+gfap	ENSDARG00000025301
+fli1	ENSDARG00000040080
+tubb5 ENSDARG00000037997
+pax2a	ENSDARG00000028148
+pax2b	ENSDARG00000032578
+gata2a	ENSDARG00000059327
+lhx3	ENSDARG00000003803 
+
+#find markers
+pbmc.integrated.markers.20 <- FindAllMarkers(pbmc.integrated, min.pct=0.1, logfc.threshold = 0.25, return.thresh=0.05, only.pos=TRUE) #min.pct is the same from 0.1 to 0.5. add min.diff.pct=0.1
+pbmc.markers.20.2<-pbmc.integrated.markers.20[which(pbmc.integrated.markers.20[,5]<0.05),]
+
+write.table(pbmc.markers.20.2,file="head_r1.5_dim98_batchcorrectedMT_markers120121_0.1_pos.txt",sep="\t",quote=F,row.names=F)
+
+
+print(pbmc.markers.20.2 %>%
+        group_by(cluster) %>%
+        slice_max(n = 5, order_by = avg_logFC), n=100)
+
+
+# For performing differential expression after integration, we switch back to the original
+# data
+DefaultAssay(pbmc.integrated) <- "RNA"
+RNA.markers <- FindConservedMarkers(pbmc.integrated, ident.1=0, verbose = FALSE, grouping.var="orig.ident")
+head(RNA.markers)
+
+
+#same range of color code
+p1 <- FeaturePlot(pbmc.integrated, features = c("PPBP", "IGLL5", "SDPR"), combine = FALSE )
+fix.sc <- scale_color_gradientn( colours = c('lightgrey', 'blue'),  limits = c(1, 8))
+p2 <- lapply(p1, function (x) x + fix.sc)
+CombinePlots(p2)
+
+#save data
+saveRDS(pbmc.integrated, file= "head_r1.5_dim98_batchcorrectedMT_markers120121.rds")
