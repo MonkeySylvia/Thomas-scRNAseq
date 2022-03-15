@@ -1,3 +1,4 @@
+# Generate a gtf file with genes, TEs, GFP, L2-2-promoter and other L2-2 annotation 
 #combine TE and gene 
 cat /workdir/nc499/reference/dr11_ref/Danio_rerio.GRCz11.intactgenename.gtf /workdir/nc499/quirze/danRer11.TEtrans_uID.subClass.wredundant.annot_categ.PCg.dfrag.c2.Rt.cluster.gtf | sort -k1,1 -k2,2n > danRer11.gene.allTES_110821.gtf
 
