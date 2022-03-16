@@ -1,6 +1,6 @@
 /programs/STAR-2.7.9a/bin/Linux_x86_64_static/STAR \
 --genomeDir /workdir/nc499/reference/STAR_GFP/ \
---sjdbGTFfile /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP.gtf \
+--sjdbGTFfile /workdir/nc499/reference/danRer11.gene.allTES_exon_110821_GFP_promoterL2.gtf \
 --readFilesIn 11376PLpool10__HuC_1head_S8_L002_R2_001.fastq 11376PLpool10__HuC_1head_S8_L002_R1_001.fastq \
 --runThreadN 50 \
 --quantMode GeneCounts \
